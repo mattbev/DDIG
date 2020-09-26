@@ -3,22 +3,12 @@ import numpy as np
 
 
 class HPool(torch.nn.Module):
-    def __init__(self, channels, height, width, num_bins):
+    def __init__(self, channels, num_bins):
         super(HPool, self).__init__()
 
-        #         self.num_bins = height*width // 100
         self.num_bins = num_bins
-
         self.channels = channels
-        self.height = height
-        self.width = width
-        #         self.coeff = torch.rand(self.channels, self.height*self.width, requires_grad=True)
-
         self.coeff = torch.rand(self.channels, self.num_bins, requires_grad=True)
-
-    #         self.coeff = torch.Tensor(self.channels, self.height*self.width)
-    #         self.coeff.fill_(1/(self.height*self.width))
-    #         self.coeff.requires_grad_(True)
 
     @staticmethod
     def histogram3D(x, bins):
@@ -40,7 +30,8 @@ class HPool(torch.nn.Module):
 
     def forward(self, x):
         # Dimension changes from (N, C, H, W) to (N, C, H*W)
-        x = x.view(-1, self.channels, self.height * self.width)
+        N, C, H, W = x.shape
+        x = x.view(-1, C, H * W)
 
         # Sort the vector
         #         x, indexes = torch.sort(x, dim=2)
